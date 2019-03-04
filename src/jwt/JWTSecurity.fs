@@ -1,4 +1,4 @@
-﻿namespace Rangoric.Utilities.Jwt
+﻿namespace Utilities.Jwt
 
 open Microsoft.IdentityModel.Protocols
 open Microsoft.IdentityModel.Protocols

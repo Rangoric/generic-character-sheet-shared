@@ -2,6 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>utilities.jwt</PackageId>
+    <Title>JWT Tools</Title>
+    <Description>A set of tools to deal with Auth0 based Jwt tokens in .Net</Description>
+
   </PropertyGroup>
 
   <ItemGroup>

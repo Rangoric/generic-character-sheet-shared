@@ -2,10 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>utilities.jwt</AssemblyName>
     <PackageId>utilities.jwt</PackageId>
     <Title>JWT Tools</Title>
     <Description>A set of tools to deal with Auth0 based Jwt tokens in .Net</Description>
-
+    <Authors>Rangoric</Authors>
+    <Copyright>Copyright (c) 2019 Wilson Gearld Mead III</Copyright>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
+    <PackageTags>jwt</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSource>true</IncludeSource>
+    <RepositoryUrl>https://github.com/Rangoric/utilities</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

@@ -53,7 +53,7 @@ module JWTSecurity =
                     | false ->
                         raise (HttpRequestException "No Token")
             let splitHeader = headerValue.ToString().Split ' '
-            AuthenticationHeaderValue(splitHeader.[0], splitHeader.[0])
+            AuthenticationHeaderValue(splitHeader.[0], splitHeader.[1])
         let rec authorize (request:HttpRequest) = 
             let header = getHeaderValue request
             match header with

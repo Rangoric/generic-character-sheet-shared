@@ -10,6 +10,13 @@ open System.Threading.Tasks
 open System.IdentityModel.Tokens.Jwt
 open Microsoft.IdentityModel.Tokens
 open System
+open Microsoft.AspNetCore.Http
+open System.Linq
+open System.Net.Http
+open System.Net.Http
+open System.Net.Http.Headers
+open Microsoft.IdentityModel.Tokens
+open System.Security.Claims
 
 module JWTSecurity =
     let Setup configurationUrl audience issuer =
@@ -34,24 +41,37 @@ module JWTSecurity =
                 |> Async.AwaitTask
                 |> Async.RunSynchronously).SigningKeys
             result       
-        let rec authorize (header:AuthenticationHeaderValue) = 
-                match header with
-                | null -> false
-                | _ ->
-                    match header.Scheme with
-                    | "Bearer" ->
-                        let handler = JwtSecurityTokenHandler()
-                        try
-                            handler.ValidateToken(header.Parameter, validationParameter) |> ignore
-                            true
-                        with
-                            | :? SecurityTokenSignatureKeyNotFoundException ->
-                                configuration.RequestRefresh()
-                                authorize header
-                            | _ -> false
-                    | _ -> false
+        let getHeaderValue (request:HttpRequest) =
+            let headerValue =
+                match request.Headers.ContainsKey "Authorization" with
+                | true ->
+                    request.Headers.["Authorization"]
+                | false ->
+                    match request.Headers.ContainsKey "authorization" with
+                    | true ->
+                        request.Headers.["authorization"]
+                    | false ->
+                        raise (HttpRequestException "No Token")
+            let splitHeader = headerValue.ToString().Split ' '
+            AuthenticationHeaderValue(splitHeader.[0], splitHeader.[0])
+        let rec authorize (request:HttpRequest) = 
+            let header = getHeaderValue request
+            match header with
+            | null -> None
+            | _ ->
+                match header.Scheme with
+                | "Bearer" ->
+                    let handler = JwtSecurityTokenHandler()
+                    try
+                        Some (handler.ValidateToken(header.Parameter, validationParameter))
+                    with
+                        | :? SecurityTokenSignatureKeyNotFoundException ->
+                            configuration.RequestRefresh()
+                            authorize request
+                        | _ -> None
+                | _ -> None
         authorize
-    let SetupWithEnvironmentVariable:(AuthenticationHeaderValue -> bool) =
+    let SetupWithEnvironmentVariable:(HttpRequest -> Option<(ClaimsPrincipal * SecurityToken)>) =
         Setup
             (Environment.GetEnvironmentVariable "Authorization-Configuration-Url")
             (Environment.GetEnvironmentVariable "Authorization-ClientID")

@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{73602E24-1E9
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "jwt", "src\jwt\jwt.fsproj", "{3DD33721-3FAB-4210-9BF5-4ADF6863ABAD}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "tests", "tests\tests.fsproj", "{001EE08C-EF70-40E1-BD3E-1ACEBA00DACD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,18 @@ Global
 		{3DD33721-3FAB-4210-9BF5-4ADF6863ABAD}.Release|x64.Build.0 = Release|Any CPU
 		{3DD33721-3FAB-4210-9BF5-4ADF6863ABAD}.Release|x86.ActiveCfg = Release|Any CPU
 		{3DD33721-3FAB-4210-9BF5-4ADF6863ABAD}.Release|x86.Build.0 = Release|Any CPU
+		{001EE08C-EF70-40E1-BD3E-1ACEBA00DACD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{001EE08C-EF70-40E1-BD3E-1ACEBA00DACD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{001EE08C-EF70-40E1-BD3E-1ACEBA00DACD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{001EE08C-EF70-40E1-BD3E-1ACEBA00DACD}.Debug|x64.Build.0 = Debug|Any CPU
+		{001EE08C-EF70-40E1-BD3E-1ACEBA00DACD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{001EE08C-EF70-40E1-BD3E-1ACEBA00DACD}.Debug|x86.Build.0 = Debug|Any CPU
+		{001EE08C-EF70-40E1-BD3E-1ACEBA00DACD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{001EE08C-EF70-40E1-BD3E-1ACEBA00DACD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{001EE08C-EF70-40E1-BD3E-1ACEBA00DACD}.Release|x64.ActiveCfg = Release|Any CPU
+		{001EE08C-EF70-40E1-BD3E-1ACEBA00DACD}.Release|x64.Build.0 = Release|Any CPU
+		{001EE08C-EF70-40E1-BD3E-1ACEBA00DACD}.Release|x86.ActiveCfg = Release|Any CPU
+		{001EE08C-EF70-40E1-BD3E-1ACEBA00DACD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3DD33721-3FAB-4210-9BF5-4ADF6863ABAD} = {73602E24-1E91-4C59-960C-62922D6A12C1}

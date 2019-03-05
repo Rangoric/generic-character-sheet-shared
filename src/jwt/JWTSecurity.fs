@@ -62,13 +62,13 @@ module JWTSecurity =
                 match header.Scheme with
                 | "Bearer" ->
                     let handler = JwtSecurityTokenHandler()
-                    try
-                        Some (handler.ValidateToken(header.Parameter, validationParameter))
-                    with
-                        | :? SecurityTokenSignatureKeyNotFoundException ->
-                            configuration.RequestRefresh()
-                            authorize request
-                        | _ -> None
+                    //try
+                    Some (handler.ValidateToken(header.Parameter, validationParameter))
+                    //with
+                        // | :? SecurityTokenSignatureKeyNotFoundException ->
+                        //     configuration.RequestRefresh()
+                        //     authorize request
+                        // | _ -> None
                 | _ -> None
         authorize
     let SetupWithEnvironmentVariable:(HttpRequest -> Option<(ClaimsPrincipal * SecurityToken)>) =

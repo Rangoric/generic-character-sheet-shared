@@ -76,3 +76,17 @@ module JWTSecurity =
             (Environment.GetEnvironmentVariable "Authorization-Configuration-Url")
             (Environment.GetEnvironmentVariable "Authorization-ClientID")
             (Environment.GetEnvironmentVariable "Authorization-Issuer")
+    let GetClaim request =
+        let optionTuple = SetupWithEnvironmentVariable request
+        match optionTuple with
+        | Some (claim, _) ->
+            claim
+        | None ->
+            null
+    let IsValid request =
+        let optionTuple = SetupWithEnvironmentVariable request
+        match optionTuple with
+        | Some (_) ->
+            true
+        | None ->
+            false

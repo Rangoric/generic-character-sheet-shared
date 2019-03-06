@@ -83,6 +83,16 @@ module JWTSecurity =
             claim
         | None ->
             null
+    let GetUserId (claimsPrincipal:ClaimsPrincipal) =
+        let identity = claimsPrincipal.Identity :?> ClaimsIdentity
+        let claims = identity.Claims.ToArray()
+        let subjectClaim =
+            claims 
+            |> Array.filter (fun t -> t.Type = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")
+            |> Array.head
+        let userID = subjectClaim.Value
+        userID
+        
     let IsValid request =
         let optionTuple = SetupWithEnvironmentVariable request
         match optionTuple with

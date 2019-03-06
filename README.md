@@ -19,3 +19,7 @@ if(!JWTSecurity.IsValid(HttpRequest))
 var claims = JWTSecurity.GetClaim(HttpRequest);
 ...
 ```
+
+### Testing
+
+To Be Improved.

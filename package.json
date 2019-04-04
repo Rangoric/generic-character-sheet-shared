@@ -1,0 +1,23 @@
+{
+  "name": "utilities",
+  "version": "1.0.0",
+  "description": "These utilities are primarily for [Generic Character Sheet](https://github.com/Rangoric/generic-character-sheet-website).",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "cd tests && dotnet watch test",
+    "tests:once": "cd tests && dotnet test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rangoric/utilities.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Rangoric/utilities/issues"
+  },
+  "homepage": "https://github.com/Rangoric/utilities#readme"
+}

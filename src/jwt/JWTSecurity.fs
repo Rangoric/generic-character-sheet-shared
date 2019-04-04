@@ -1,21 +1,16 @@
 ﻿namespace Utilities.Jwt
 
-open Microsoft.IdentityModel.Protocols
-open Microsoft.IdentityModel.Protocols
-open Microsoft.IdentityModel.Protocols.OpenIdConnect
-open System.Net.Http.Headers
-open Microsoft.IdentityModel.Tokens
-open System.Threading
-open System.Threading.Tasks
-open System.IdentityModel.Tokens.Jwt
-open Microsoft.IdentityModel.Tokens
-open System
-open Microsoft.AspNetCore.Http
 open System.Linq
 open System.Net.Http
-open System.Net.Http
-open System.Net.Http.Headers
 open Microsoft.IdentityModel.Tokens
+open Microsoft.IdentityModel.Protocols
+open Microsoft.IdentityModel.Protocols.OpenIdConnect
+open System.Threading
+open System.IdentityModel.Tokens.Jwt
+open Newtonsoft.Json.Linq
+open System.Net.Http.Headers
+open System
+open Microsoft.AspNetCore.Http
 open System.Security.Claims
 
 module JWTSecurity =
@@ -79,7 +74,7 @@ module JWTSecurity =
     let GetClaim request =
         let optionTuple = SetupWithEnvironmentVariable request
         match optionTuple with
-        | Some (claim, _) ->
+        | Some (claim, profile) ->
             claim
         | None ->
             null
@@ -93,10 +88,29 @@ module JWTSecurity =
         let userID = subjectClaim.Value
         userID
         
-    let IsValid request =
-        let optionTuple = SetupWithEnvironmentVariable request
-        match optionTuple with
-        | Some (_) ->
-            true
+    let IsValid (request:HttpRequest) =
+        let claimTokenTuple = SetupWithEnvironmentVariable request
+        match claimTokenTuple with
+        | Some (claim, token) ->
+            let jwtToken = token :?> JwtSecurityToken
+            let profile = 
+                {
+                    (jwtToken.Payload.["https://www.rangoric.com/app_metadata"] :?> JObject).ToObject<ActorProfile>() with
+                        Name = jwtToken.Payload.["name"] :?> string;
+                        ID = GetUserId claim
+                }
+            (true, Some claim, Some profile)
         | None ->
-            false
+            (false, None, None)
+
+    let IsValidInGroups (request:HttpRequest) (groups:string list) =
+        let (isValid, claim, token) = IsValid request
+        match isValid with
+        | false -> (isValid, claim, token)
+        | true ->
+            match token with
+            | None -> (isValid, claim, token)
+            | Some actorProfile ->
+                match (Set.ofList groups) - (Set.ofList actorProfile.Roles) |> List.ofSeq with
+                | [] -> (true, claim, token)
+                | _ -> (false, None, None)

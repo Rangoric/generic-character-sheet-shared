@@ -14,7 +14,16 @@ open Microsoft.AspNetCore.Http
 open System.Security.Claims
 
 module JWTSecurity =
-    let Setup configurationUrl audience issuer =
+    let GetUserId (claimsPrincipal:ClaimsPrincipal) =
+        let identity = claimsPrincipal.Identity :?> ClaimsIdentity
+        let claims = identity.Claims.ToArray()
+        let subjectClaim =
+            claims 
+            |> Array.filter (fun t -> t.Type = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")
+            |> Array.head
+        let userID = subjectClaim.Value
+        userID
+    let Setup configurationUrl audience issuer metadata =
         let configuration =
             let documentRetriever = HttpDocumentRetriever();
             documentRetriever.RequireHttps <- true
@@ -57,60 +66,47 @@ module JWTSecurity =
                 match header.Scheme with
                 | "Bearer" ->
                     let handler = JwtSecurityTokenHandler()
-                    //try
-                    Some (handler.ValidateToken(header.Parameter, validationParameter))
-                    //with
-                        // | :? SecurityTokenSignatureKeyNotFoundException ->
-                        //     configuration.RequestRefresh()
-                        //     authorize request
-                        // | _ -> None
+                    try
+                        let (claims, token) = handler.ValidateToken(header.Parameter, validationParameter)
+                        let jwtToken = token :?> JwtSecurityToken
+                        let profile = 
+                            {
+                                (jwtToken.Payload.[metadata] :?> JObject).ToObject<ActorProfile>() with
+                                    Name = jwtToken.Payload.["name"] :?> string;
+                                    ID = GetUserId claims
+                            }
+                        Some (profile)
+
+                    with
+                        | :? SecurityTokenSignatureKeyNotFoundException ->
+                            configuration.RequestRefresh()
+                            authorize request
+                        | _ -> None
                 | _ -> None
         authorize
-    let SetupWithEnvironmentVariable:(HttpRequest -> Option<(ClaimsPrincipal * SecurityToken)>) =
+    let SetupWithEnvironmentVariable:(HttpRequest -> Option<(ActorProfile)>) =
         Setup
             (Environment.GetEnvironmentVariable "Authorization-Configuration-Url")
             (Environment.GetEnvironmentVariable "Authorization-ClientID")
             (Environment.GetEnvironmentVariable "Authorization-Issuer")
-    let GetClaim request =
-        let optionTuple = SetupWithEnvironmentVariable request
-        match optionTuple with
-        | Some (claim, profile) ->
-            claim
-        | None ->
-            null
-    let GetUserId (claimsPrincipal:ClaimsPrincipal) =
-        let identity = claimsPrincipal.Identity :?> ClaimsIdentity
-        let claims = identity.Claims.ToArray()
-        let subjectClaim =
-            claims 
-            |> Array.filter (fun t -> t.Type = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")
-            |> Array.head
-        let userID = subjectClaim.Value
-        userID
+            (Environment.GetEnvironmentVariable "Authorization-Metadata")
         
     let IsValid (request:HttpRequest) =
         let claimTokenTuple = SetupWithEnvironmentVariable request
         match claimTokenTuple with
-        | Some (claim, token) ->
-            let jwtToken = token :?> JwtSecurityToken
-            let profile = 
-                {
-                    (jwtToken.Payload.["https://www.rangoric.com/app_metadata"] :?> JObject).ToObject<ActorProfile>() with
-                        Name = jwtToken.Payload.["name"] :?> string;
-                        ID = GetUserId claim
-                }
-            (true, Some claim, Some profile)
+        | Some (profile) ->
+            (true, Some profile)
         | None ->
-            (false, None, None)
+            (false, None)
 
     let IsValidInGroups (request:HttpRequest) (groups:string list) =
-        let (isValid, claim, token) = IsValid request
+        let (isValid, profile) = IsValid request
         match isValid with
-        | false -> (isValid, claim, token)
+        | false -> (isValid, profile)
         | true ->
-            match token with
-            | None -> (isValid, claim, token)
+            match profile with
+            | None -> (isValid, profile)
             | Some actorProfile ->
                 match (Set.ofList groups) - (Set.ofList actorProfile.Roles) |> List.ofSeq with
-                | [] -> (true, claim, token)
-                | _ -> (false, None, None)
+                | [] -> (true, profile)
+                | _ -> (false, None)

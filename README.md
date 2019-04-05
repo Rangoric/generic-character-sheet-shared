@@ -15,10 +15,10 @@ Environment Variables to set:
 - `Authorization-Configuration-Url` : `https://[Domain in Auth0]/.well-known/openid-configuration`
 - `Authorization-ClientID` : `[Your ClientID]`
 - `Authorization-Issuer` : `https://[Domain in Auth0]/`
-- `Authorization-Metadata` : `http://[Your application website]/app_metadata`
+- `Authorization-Metadata` : `https://[Your application website]/app_metadata`
 
 `[Domain in Auth0]` can be gotten by going to Applications -> Settings, it will be a readonly setting near the top.
-`[Your application website]` I can't remember where it is set, but it's in each token created, so you can get it from there if need be.
+`[Your application website]` This requires a rule set up to copy data to the token using the namespace you decide on.
 
 ```fsharp
 open Utilities.Jwt

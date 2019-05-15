@@ -1,6 +1,6 @@
 # Utilities
 
-These utilities are primarily for [Generic Character Sheet](https://github.com/Rangoric/generic-character-sheet-website).
+These utilities are primarily for [Generic Character Sheet](https://github.com/Rangoric/gcs).
 
 ## JWT
 
@@ -20,20 +20,38 @@ Environment Variables to set:
 `[Domain in Auth0]` can be gotten by going to Applications -> Settings, it will be a readonly setting near the top.
 `[Your application website]` This requires a rule set up to copy data to the token using the namespace you decide on.
 
+The rule I am currently using looks like:
+
+```javascript
+function(user, context, callback) {
+  const namespace = 'https://www.rangoric.com/';
+  context.idToken[namespace + 'user_metadata'] = user.user_metadata || {};
+  context.idToken[namespace + 'app_metadata'] = user.app_metadata || {};
+  context.idToken[namespace + 'name'] = user.name || 'No Name';
+  callback(null, user, context);
+}
+```
+
+#### Usage in F
+
 ```fsharp
 open Utilities.Jwt
 
-let (isValid, claimPrinciple, actorProfile) = JwtSecurity.IsValid request//(request:HttpRequest)
-let (isValid, claimPrinciple, actorProfile) = JwtSecurity.IsValidInGroups request groupList//(request:HttpRequest) (groupList:string list)
+let (isValid, actorProfile) = JwtSecurity.IsValid request//(request:HttpRequest)
+let (isValid, actorProfile) = JwtSecurity.IsValidInGroups request groupList//(request:HttpRequest) (groupList:string list)
 ```
 
-I don't rememeber if F# and C# tuples are compatible so this might work.
+#### C# is gets a little ugly.
+
+F# tuples use the old tuple style to interact with C#.
 
 ```csharp
 using Utilities.Jwt;
 
-var (isValid, claimPrinciple, actorProfile) = JwtSecurity.IsValid(request);
-var (isValid, claimPrinciple, actorProfile) = JwtSecurity.IsValidInGroups(request, groupList);
+var tuple = JwtSecurity.IsValid(request);
+var tuple = JwtSecurity.IsValidInGroups(request, groupList);
+tuple.item1//isValid
+tuple.item2//actorProfile
 ```
 
 ### Testing

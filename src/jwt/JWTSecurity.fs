@@ -14,15 +14,6 @@ open Microsoft.AspNetCore.Http
 open System.Security.Claims
 
 module JWTSecurity =
-    let GetUserId (claimsPrincipal:ClaimsPrincipal) =
-        let identity = claimsPrincipal.Identity :?> ClaimsIdentity
-        let claims = identity.Claims.ToArray()
-        let subjectClaim =
-            claims 
-            |> Array.filter (fun t -> t.Type = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")
-            |> Array.head
-        let userID = subjectClaim.Value
-        userID
     let Setup configurationUrl audience issuer metadata =
         let configuration =
             let documentRetriever = HttpDocumentRetriever();
@@ -67,13 +58,13 @@ module JWTSecurity =
                 | "Bearer" ->
                     let handler = JwtSecurityTokenHandler()
                     try
-                        let (claims, token) = handler.ValidateToken(header.Parameter, validationParameter)
+                        let (_, token) = handler.ValidateToken(header.Parameter, validationParameter)
                         let jwtToken = token :?> JwtSecurityToken
                         let profile = 
                             {
-                                (jwtToken.Payload.[metadata] :?> JObject).ToObject<ActorProfile>() with
-                                    Name = jwtToken.Payload.["name"] :?> string;
-                                    ID = GetUserId claims
+                                (jwtToken.Payload.[metadata + "app_metadata"] :?> JObject).ToObject<ActorProfile>() with
+                                    Name = jwtToken.Payload.[metadata + "name"] :?> string;
+                                    ID = jwtToken.Payload.["sub"] :?> string;
                             }
                         Some (profile)
 
